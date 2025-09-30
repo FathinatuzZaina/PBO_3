@@ -353,3 +353,445 @@ Program Sistem Informasi Manajemen Donor Darah ini adalah aplikasi sederhana ber
             } while (pilihan != 8);
         }
     }
+
+
+
+# PBO 4 
+## PENERAPAN 
+### Abstraction
+Abstraction diterapkan pada abstract class Person. Class ini mendefinisikan atribut umum (id, nama, umur) dan sebuah method abstrak tampilkanInfo(). Karena bersifat abstrak, Person tidak dapat diinstansiasi secara langsung, melainkan harus diturunkan ke subclass. Subclass Donor dan Petugas wajib mengimplementasikan method tampilkanInfo() sesuai kebutuhan masing-masing.
+
+     abstract class Person {
+          private static int counter = 1;
+          private final int id;
+          private String nama;
+          private int umur;
+      
+          public Person(String nama, int umur) {
+              this.id = counter++;
+              this.nama = nama;
+              this.umur = umur;
+          }
+      
+          public int getId() {
+              return id;
+          }
+      
+          public String getNama() {
+              return nama;
+          }
+      
+          public void setNama(String nama) {
+              this.nama = nama;
+          }
+      
+          public int getUmur() {
+              return umur;
+          }
+      
+          public void setUmur(int umur) {
+              this.umur = umur;
+          }
+    
+        public abstract void tampilkanInfo();
+    }
+
+### Interface
+Program juga menerapkan abstraction melalui interface Validasi yang berisi method validasiUmur(int umur) dan validasiGolongan(String gol). Interface ini kemudian diimplementasikan oleh class DonorService, sehingga logika validasi umur dan golongan darah dipisahkan secara jelas dari struktur data.
+
+    interface Validasi {
+        boolean validasiUmur(int umur);
+        boolean validasiGolongan(String gol);
+    }
+    
+    class DonorService implements Validasi {
+        private final ArrayList<Donor> daftarDonor = new ArrayList<>();
+        private final Scanner input = new Scanner(System.in);
+    
+        @Override
+        public boolean validasiUmur(int umur) {
+            return umur >= 17;
+        }
+    
+        @Override
+        public boolean validasiGolongan(String gol) {
+            return gol.equalsIgnoreCase("A") ||
+                   gol.equalsIgnoreCase("B") ||
+                   gol.equalsIgnoreCase("AB") ||
+                   gol.equalsIgnoreCase("O");
+        }
+
+### Polymorphism
+#### Overriding
+Polymorphism dengan overriding diterapkan pada method tampilkanInfo(). Method ini awalnya didefinisikan di abstract class Person, lalu dioverride oleh subclass Donor untuk menampilkan data donor termasuk golongan darah, dan oleh subclass Petugas untuk menampilkan data petugas termasuk jabatan. Dengan overriding, method yang sama menghasilkan output berbeda sesuai objek yang memanggilnya.
+
+    class Donor extends Person {
+        private String golDarah;
+    
+        public Donor(String nama, int umur, String golDarah) {
+            super(nama, umur);
+            this.golDarah = golDarah;
+        }
+    
+        public String getGolDarah() {
+            return golDarah;
+        }
+    
+        public void setGolDarah(String golDarah) {
+            this.golDarah = golDarah;
+        }
+    
+        @Override
+        public void tampilkanInfo() {
+            System.out.println("ID: " + getId() + " | Nama: " + getNama() +
+                    " | Umur: " + getUmur() +
+                    " | Golongan Darah: " + golDarah);
+        }
+    }
+    
+    class Petugas extends Person {
+        private String jabatan;
+    
+        public Petugas(String nama, int umur, String jabatan) {
+            super(nama, umur);
+            this.jabatan = jabatan;
+        }
+    
+        public String getJabatan() {
+            return jabatan;
+        }
+    
+        public void setJabatan(String jabatan) {
+            this.jabatan = jabatan;
+        }
+    
+        @Override
+        public void tampilkanInfo() {
+            System.out.println("ID: " + getId() + " | Nama: " + getNama() +
+                    " | Umur: " + getUmur() +
+                    " | Jabatan: " + jabatan);
+        }
+    }
+
+#### Overloading
+
+Polymorphism dengan overloading diterapkan pada method cariDonor di class DonorService. Terdapat dua versi method dengan nama yang sama tetapi parameter berbeda, yaitu cariDonor(String keyword) untuk pencarian berdasarkan nama, dan cariDonor(int umur) untuk pencarian berdasarkan umur. Dengan overloading, program dapat menggunakan satu nama method untuk dua fungsi berbeda, sehingga kode menjadi lebih ringkas dan fleksibel.
+
+        public void cariDonor(String keyword) {
+            boolean ditemukan = false;
+            for (Donor d : daftarDonor) {
+                if (d.getNama().toLowerCase().contains(keyword.toLowerCase())) {
+                    d.tampilkanInfo();
+                    ditemukan = true;
+                }
+            }
+            if (!ditemukan) {
+                System.out.println("Tidak ada pendonor dengan nama tersebut.");
+            }
+        }
+    
+        public void cariDonor(int umur) {
+            boolean ditemukan = false;
+            for (Donor d : daftarDonor) {
+                if (d.getUmur() == umur) {
+                    d.tampilkanInfo();
+                    ditemukan = true;
+                }
+            }
+            if (!ditemukan) {
+                System.out.println("Tidak ada pendonor dengan umur " + umur);
+            }
+        }
+
+
+# SOURCE CODE
+    package com.mycompany.donor;
+    
+    import java.util.ArrayList;
+    import java.util.Scanner;
+    
+    abstract class Person {
+        private static int counter = 1;
+        private final int id;
+        private String nama;
+        private int umur;
+    
+        public Person(String nama, int umur) {
+            this.id = counter++;
+            this.nama = nama;
+            this.umur = umur;
+        }
+    
+        public int getId() {
+            return id;
+        }
+    
+        public String getNama() {
+            return nama;
+        }
+    
+        public void setNama(String nama) {
+            this.nama = nama;
+        }
+    
+        public int getUmur() {
+            return umur;
+        }
+    
+        public void setUmur(int umur) {
+            this.umur = umur;
+        }
+    
+        public abstract void tampilkanInfo();
+    }
+    
+    class Donor extends Person {
+        private String golDarah;
+    
+        public Donor(String nama, int umur, String golDarah) {
+            super(nama, umur);
+            this.golDarah = golDarah;
+        }
+    
+        public String getGolDarah() {
+            return golDarah;
+        }
+    
+        public void setGolDarah(String golDarah) {
+            this.golDarah = golDarah;
+        }
+    
+        @Override
+        public void tampilkanInfo() {
+            System.out.println("ID: " + getId() + " | Nama: " + getNama() +
+                    " | Umur: " + getUmur() +
+                    " | Golongan Darah: " + golDarah);
+        }
+    }
+    
+    class Petugas extends Person {
+        private String jabatan;
+    
+        public Petugas(String nama, int umur, String jabatan) {
+            super(nama, umur);
+            this.jabatan = jabatan;
+        }
+    
+        public String getJabatan() {
+            return jabatan;
+        }
+    
+        public void setJabatan(String jabatan) {
+            this.jabatan = jabatan;
+        }
+    
+        @Override
+        public void tampilkanInfo() {
+            System.out.println("ID: " + getId() + " | Nama: " + getNama() +
+                    " | Umur: " + getUmur() +
+                    " | Jabatan: " + jabatan);
+        }
+    }
+    
+    interface Validasi {
+        boolean validasiUmur(int umur);
+        boolean validasiGolongan(String gol);
+    }
+    
+    class DonorService implements Validasi {
+        private final ArrayList<Donor> daftarDonor = new ArrayList<>();
+        private final Scanner input = new Scanner(System.in);
+    
+        @Override
+        public boolean validasiUmur(int umur) {
+            return umur >= 17;
+        }
+    
+        @Override
+        public boolean validasiGolongan(String gol) {
+            return gol.equalsIgnoreCase("A") ||
+                   gol.equalsIgnoreCase("B") ||
+                   gol.equalsIgnoreCase("AB") ||
+                   gol.equalsIgnoreCase("O");
+        }
+    
+        public void tambahDonor() {
+            System.out.print("Masukkan Nama: ");
+            String nama = input.nextLine();
+            System.out.print("Masukkan Umur: ");
+            int umur = input.nextInt();
+            input.nextLine();
+            if (!validasiUmur(umur)) {
+                System.out.println("Umur minimal 17 tahun untuk donor!");
+                return;
+            }
+            System.out.print("Masukkan Golongan Darah (A/B/AB/O): ");
+            String gol = input.nextLine();
+            if (!validasiGolongan(gol)) {
+                System.out.println("Golongan darah tidak valid!");
+                return;
+            }
+            daftarDonor.add(new Donor(nama, umur, gol.toUpperCase()));
+            System.out.println("Data donor berhasil ditambahkan!");
+        }
+    
+        public void tampilkanDonor() {
+            System.out.println("\n=== Daftar Data Pendonor ===");
+            if (daftarDonor.isEmpty()) {
+                System.out.println("Belum ada data pendonor.");
+            } else {
+                for (Donor d : daftarDonor) {
+                    d.tampilkanInfo();
+                }
+            }
+        }
+    
+        public void updateDonor() {
+            tampilkanDonor();
+            if (daftarDonor.isEmpty()) return;
+            System.out.print("Masukkan ID pendonor yang ingin diupdate: ");
+            int id = input.nextInt();
+            input.nextLine();
+            Donor donor = cariDonorById(id);
+            if (donor != null) {
+                System.out.print("Masukkan Nama Baru: ");
+                String namaBaru = input.nextLine();
+                System.out.print("Masukkan Umur Baru: ");
+                int umurBaru = input.nextInt();
+                input.nextLine();
+                if (!validasiUmur(umurBaru)) {
+                    System.out.println("Umur minimal 17 tahun untuk donor!");
+                    return;
+                }
+                System.out.print("Masukkan Golongan Darah Baru (A/B/AB/O): ");
+                String golBaru = input.nextLine();
+                if (!validasiGolongan(golBaru)) {
+                    System.out.println("Golongan darah tidak valid!");
+                    return;
+                }
+                donor.setNama(namaBaru);
+                donor.setUmur(umurBaru);
+                donor.setGolDarah(golBaru.toUpperCase());
+                System.out.println("Data pendonor berhasil diupdate!");
+            } else {
+                System.out.println("Pendonor dengan ID tersebut tidak ditemukan!");
+            }
+        }
+    
+        public void hapusDonor() {
+            tampilkanDonor();
+            if (daftarDonor.isEmpty()) return;
+            System.out.print("Masukkan ID pendonor yang ingin dihapus: ");
+            int id = input.nextInt();
+            input.nextLine();
+            Donor donor = cariDonorById(id);
+            if (donor != null) {
+                daftarDonor.remove(donor);
+                System.out.println("Data pendonor berhasil dihapus!");
+            } else {
+                System.out.println("Pendonor dengan ID tersebut tidak ditemukan!");
+            }
+        }
+    
+        public void cariDonor(String keyword) {
+            boolean ditemukan = false;
+            for (Donor d : daftarDonor) {
+                if (d.getNama().toLowerCase().contains(keyword.toLowerCase())) {
+                    d.tampilkanInfo();
+                    ditemukan = true;
+                }
+            }
+            if (!ditemukan) {
+                System.out.println("Tidak ada pendonor dengan nama tersebut.");
+            }
+        }
+    
+        public void cariDonor(int umur) {
+            boolean ditemukan = false;
+            for (Donor d : daftarDonor) {
+                if (d.getUmur() == umur) {
+                    d.tampilkanInfo();
+                    ditemukan = true;
+                }
+            }
+            if (!ditemukan) {
+                System.out.println("Tidak ada pendonor dengan umur " + umur);
+            }
+        }
+    
+        public void filterByGolongan() {
+            System.out.print("Masukkan Golongan Darah yang ingin difilter (A/B/AB/O): ");
+            String gol = input.nextLine().toUpperCase();
+            if (!validasiGolongan(gol)) {
+                System.out.println("Golongan darah tidak valid!");
+                return;
+            }
+            boolean ditemukan = false;
+            for (Donor d : daftarDonor) {
+                if (d.getGolDarah().equalsIgnoreCase(gol)) {
+                    d.tampilkanInfo();
+                    ditemukan = true;
+                }
+            }
+            if (!ditemukan) {
+                System.out.println("Tidak ada pendonor dengan golongan darah " + gol);
+            }
+        }
+    
+        private Donor cariDonorById(int id) {
+            for (Donor d : daftarDonor) {
+                if (d.getId() == id) {
+                    return d;
+                }
+            }
+            return null;
+        }
+    }
+    
+    public class Main {
+        public static void main(String[] args) {
+            DonorService service = new DonorService();
+            Scanner input = new Scanner(System.in);
+            int pilihan;
+            do {
+                System.out.println("\n=== Sistem Informasi Manajemen Donor Darah ===");
+                System.out.println("1. Tambah Data Donor");
+                System.out.println("2. Tampilkan Semua Donor");
+                System.out.println("3. Update Data Donor");
+                System.out.println("4. Hapus Data Donor");
+                System.out.println("5. Cari Pendonor berdasarkan Nama");
+                System.out.println("6. Cari Pendonor berdasarkan Umur");
+                System.out.println("7. Filter Pendonor berdasarkan Golongan Darah");
+                System.out.println("8. Data Petugas");
+                System.out.println("9. Keluar");
+                System.out.print("Pilih menu: ");
+                pilihan = input.nextInt();
+                input.nextLine();
+                switch (pilihan) {
+                    case 1 -> service.tambahDonor();
+                    case 2 -> service.tampilkanDonor();
+                    case 3 -> service.updateDonor();
+                    case 4 -> service.hapusDonor();
+                    case 5 -> {
+                        System.out.print("Masukkan Nama yang ingin dicari: ");
+                        String nama = input.nextLine();
+                        service.cariDonor(nama);
+                    }
+                    case 6 -> {
+                        System.out.print("Masukkan Umur yang ingin dicari: ");
+                        int umur = input.nextInt();
+                        input.nextLine();
+                        service.cariDonor(umur);
+                    }
+                    case 7 -> service.filterByGolongan();
+                    case 8 -> {
+                        Petugas p = new Petugas("Siti Aminah", 35, "Dokter");
+                        System.out.println("\n=== Data Petugas ===");
+                        p.tampilkanInfo();
+                    }
+                    case 9 -> System.out.println("Terima kasih telah menggunakan program ini!");
+                    default -> System.out.println("Pilihan tidak valid, coba lagi.");
+                }
+            } while (pilihan != 9);
+        }
+    }
